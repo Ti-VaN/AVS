@@ -1,0 +1,160 @@
+#include <iostream>
+#include <math.h>
+#include <time.h>
+#include <Windows.h>
+#include <fstream>
+#include <string>
+#include <iomanip>
+
+using namespace std;
+
+int main()
+{
+	srand(time(0));
+	int countSin, countCos, countSqrt, sum;
+	string key;
+	cout << "Enter optimization key: ";
+	cin >> key;
+	SYSTEM_INFO SystemInfo;
+	GetSystemInfo(&SystemInfo);
+	clock_t timeT;
+	long double sinTime = 0, cosTime = 0, sqrtTime = 0;
+	double dis, m = 0, m2 = 0, t = 0;
+	string processor;
+	switch (SystemInfo.dwProcessorType)
+	{
+	case 386:
+		processor = "Intel 386";
+		break;
+	case 486:
+		processor = "Intel 486";
+		break;
+	case 586:
+		processor = "Intel Pentium";
+		break;
+	case 2200:
+		processor = "Intel IA64";
+		break;
+	case 8664:
+		processor = "AMD X8664";
+		break;
+	default:
+		processor = "Unknow processor";
+	}
+	cout << "Number of operations with sin: ";
+	cin >> countSin;
+	cout << "Number of operations with cos: ";
+	cin >> countCos;
+	cout << "Number of operations with sqrt: ";
+	cin >> countSqrt;
+	sum = countSin + countCos + countSqrt;
+	const int N = (countSin <= 100 && countCos <= 100 && countSqrt <= 100) ? 1000 : 10;
+	for (int i = 0; i < N; i++) {
+		timeT = clock();
+		for (int i = 0; i < countSin; i++) {
+			sin(rand());
+		}
+		sinTime += clock() - timeT;
+		timeT = clock();
+		for (int i = 0; i < countCos; i++) {
+			cos(rand());
+		}
+		cosTime += clock() - timeT;
+		timeT = clock();
+		for (int i = 0; i < countSqrt; i++) {
+			sqrt(rand());
+		}
+		sqrtTime += clock() - timeT;
+		t += sinTime / CLOCKS_PER_SEC + cosTime / CLOCKS_PER_SEC + sqrtTime / CLOCKS_PER_SEC;
+		m += t / N;
+		m2 += pow(t, 2) / N;
+	}
+	sinTime = sinTime / N / CLOCKS_PER_SEC;
+	cosTime = cosTime / N / CLOCKS_PER_SEC;
+	sqrtTime = sqrtTime / N / CLOCKS_PER_SEC;
+	dis = (double)m2 - pow(m, 2);
+	ofstream out("result.csv");
+	if (out.is_open()) {
+		out << "PModel: " << processor << endl;
+		out << "Task: " << "sin, cos, sqrt" << endl;
+		out << "OpType: " << "Integer" << endl;
+		out << "Opt: " << key << endl;
+		out << "LNum: " << "sin: " << countSin << ", cos: " << countCos << ", sqrt: " << countSqrt << endl;
+		out << "InsCount: " << "sin: 1, cos: 1, sqrt: 1" << endl;
+		out << "AvTime: " << "sin: " << fixed << setprecision(9) << sinTime/ countSin << ", cos: " << cosTime / countCos << ", sqrt: " << sqrtTime / countSqrt << endl;
+		out << "AbsError: " << fixed << setprecision(4) << sqrt(dis)<< endl;
+		out << "RelError: " << sqrt(dis) / m << "%" << endl;
+		out << "TaskPerf: " << (double)1 / (((double)countSin / sum / (countSin / sinTime)) + ((double)countCos / sum / (countCos / cosTime)) +  ((double)countSqrt / sum / (countSqrt / sqrtTime))) << endl << endl;
+		m = 0, m2 = 0, dis, sinTime = 0, cosTime = 0, sqrtTime = 0, t = 0;
+		for (int i = 0; i < N; i++) {
+			timeT = clock();
+			for (int i = 0; i < countSin; i++) {
+				sinf((float)rand() / RAND_MAX);
+			}
+			sinTime += clock() - timeT;
+			timeT = clock();
+			for (int i = 0; i < countCos; i++) {
+				cosf((float)rand() / RAND_MAX);
+			}
+			cosTime += clock() - timeT;
+			timeT = clock();
+			for (int i = 0; i < countSqrt; i++) {
+				sqrtf((float)rand() / RAND_MAX);
+			}
+			sqrtTime += clock() - timeT;
+			t += sinTime / CLOCKS_PER_SEC + cosTime / CLOCKS_PER_SEC + sqrtTime / CLOCKS_PER_SEC;
+			m += t / N;
+			m2 += pow(t, 2) / N;
+		}
+		dis = (double)m2 - pow(m, 2);
+		sinTime = sinTime / N / CLOCKS_PER_SEC;
+		cosTime = cosTime / N / CLOCKS_PER_SEC;
+		sqrtTime = sqrtTime / N / CLOCKS_PER_SEC;
+		out << "PModel: " << processor << endl;
+		out << "Task: " << "sin, cos, sqrt" << endl;
+		out << "OpType: " << "Float" << endl;
+		out << "Opt: " << key << endl;
+		out << "LNum: " << "sin: " << countSin << ", cos: " << countCos << ", sqrt: " << countSqrt << endl;
+		out << "InsCount: " << "sin: 1, cos: 1, sqrt: 1" << endl;
+		out << "AvTime: " << "sin: " << fixed << setprecision(9) << sinTime / countSin<< ", cos: " << cosTime / countCos << ", sqrt: " << sqrtTime / countSqrt << endl;
+		out << "AbsError: " << fixed << setprecision(4) << sqrt(dis) << endl;
+		out << "RelError: " << sqrt(dis) / m << "%" << endl;
+		out << "TaskPerf: " << (double)1 / (((double)countSin / sum / (countSin / sinTime)) + ((double)countCos / sum / (countCos / cosTime)) + ((double)countSqrt / sum / (countSqrt / sqrtTime))) << endl << endl;
+		m = 0, m2 = 0, dis, sinTime = 0, cosTime = 0, sqrtTime = 0, t = 0;
+		for (int i = 0; i < N; i++) {
+			timeT = clock();
+			for (int i = 0; i < countSin; i++) {
+				sin((double)rand() / RAND_MAX);
+			}
+			sinTime += clock() - timeT;
+			timeT = clock();
+			for (int i = 0; i < countCos; i++) {
+				cos((double)rand() / RAND_MAX);
+			}
+			cosTime += clock() - timeT;
+			timeT = clock();
+			for (int i = 0; i < countSqrt; i++) {
+				sqrt((double)rand() / RAND_MAX);
+			}
+			sqrtTime += clock() - timeT;
+			t += sinTime / CLOCKS_PER_SEC + cosTime / CLOCKS_PER_SEC + sqrtTime / CLOCKS_PER_SEC;
+			m += t / N;
+			m2 += pow(t, 2) / N;
+		}
+		dis = (double)m2 - pow(m, 2);
+		sinTime = sinTime / N / CLOCKS_PER_SEC;
+		cosTime = cosTime / N / CLOCKS_PER_SEC;
+		sqrtTime = sqrtTime / N / CLOCKS_PER_SEC;
+		out << "PModel: " << processor << endl;
+		out << "Task: " << "cos, sin, sqrt" << endl;
+		out << "OpType: " << "Double" << endl;
+		out << "Opt: " << key << endl;
+		out << "LNum: " << "sin: " << countSin << ", cos: " << countCos << ", sqrt: " << countSqrt << endl;
+		out << "InsCount: " << "sin: 1, cos: 1, sqrt: 1" << endl;
+		out << "AvTime: " << "sin: " << fixed << setprecision(9) << sinTime / countSin << ", cos: " << cosTime / countCos << ", sqrt: " << sqrtTime / countSqrt << endl;
+		out << "AbsError: " << fixed << setprecision(4) << sqrt(dis) << endl;
+		out << "RelError: " << sqrt(dis) / m<< "%" << endl;
+		out << "TaskPerf: " << (double)1 / (((double)countSin / sum / (countSin / sinTime)) + ((double)countCos / sum / (countCos / cosTime)) + ((double)countSqrt / sum / (countSqrt / sqrtTime)));
+	}
+	out.close();
+}
